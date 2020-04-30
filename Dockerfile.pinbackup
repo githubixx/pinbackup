@@ -1,0 +1,36 @@
+###################
+# Build app
+###################
+ARG GO_VERSION=1.14
+
+FROM golang:${GO_VERSION}-alpine AS builder
+
+# Install git + SSL ca certificates.
+# Git is required for fetching the dependencies.
+# ca-certificates is required to call HTTPS endpoints.
+RUN apk update && \
+    apk add git ca-certificates && \
+    update-ca-certificates
+
+ADD . /app/
+WORKDIR /app
+COPY ./go.mod ./go.sum ./
+
+RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /pinbackup .
+
+###################
+# Build final image
+###################
+#FROM scratch as final
+FROM alpine
+
+# Handy tools if you need to copy images from the downloader container
+# somewhere else via ssh+rsync e.g. If not needed this line can be removed.
+RUN apk update && \
+    apk add busybox-extras bind-tools rsync tar openssh-client
+
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /pinbackup /pinbackup
+
+ENTRYPOINT ["/pinbackup"]

@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+
+  redis:
+    restart: always
+    image: redis:5-alpine
+
+  headless-chrome:
+    build:
+      context: . 
+      dockerfile: Dockerfile.chrome-headless
+    ports:
+      - "9222:9222"
+    restart: always
+    image: headless-shell:81.0.4044.129
+
+  scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile.pinbackup
+    restart: on-failure
+    image: pinbackup:latest
+    environment:
+      SELECTOR_PINS_COUNT: ".tBJ.dyH.iFc.MF7.pBj.DrD.IZT.swG"
+      SELECTOR_PREVIEW_PINS: ".hCL.kVc.L4E.MIw"
+      LOGIN_NAME: "your@email.address"
+      LOGIN_PASSWORD: "secret"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      CHROME_WS_DEBUGGER_HOST: "headless-chrome"
+    command: scraper
+    depends_on:
+      - redis
+      - headless-chrome
+
+  downloader:
+    restart: on-failure
+    image: pinbackup:latest
+    environment:
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+    volumes:
+      - /tmp:/tmp
+    command: downloader
+    depends_on:
+      - redis
+      - headless-chrome
+
+  server:
+    restart: on-failure
+    image: pinbackup:latest
+    environment:
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+    command: server
+    ports:
+      - 8080:3333
+    depends_on:
+      - redis
+      - headless-chrome
