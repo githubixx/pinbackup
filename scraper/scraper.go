@@ -16,7 +16,6 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -111,6 +110,7 @@ func (s *scraper) getChromeWsDebugURL() (string, error) {
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return "", err
 	}
+
 	return result["webSocketDebuggerUrl"].(string), nil
 }
 
@@ -195,69 +195,15 @@ func (s *scraper) openURL(browserCtx context.Context, board *board.Board) error 
 	return nil
 }
 
-// fetchPinsCount tries to get the number of pins from board page on the
-// top left. If no error occurs returns the count otherwise zero and the
-// error.
-// TODO: Doesn't work very well with boards that contains sections.
-// TODO: Needs a timeout in case element with pins count doesn't appear
-func (s *scraper) fetchPinsCount(browserCtx context.Context) (int, error) {
-	var (
-		err          error
-		rawPinsCount string
-		config       = s.config
-	)
-
-	fetchRawPinsCountFromPage := func(rawPinsCount *string) chromedp.Tasks {
-		return chromedp.Tasks{
-			chromedp.WaitVisible(config.SelectorPinsCount, chromedp.ByQuery),
-			chromedp.Text(config.SelectorPinsCount, rawPinsCount, chromedp.NodeVisible, chromedp.ByQuery),
-		}
-	}
-
-	// Processes input like "1,291 Pins" and returns a integer. Returns 0 if number
-	// couldn't be parsed.
-	pinsCountStringToInt := func(pinsCount string) int {
-		log.Trace().
-			Str("method", "fetchPinsCount").
-			Msgf("Pin count (raw): %s", pinsCount)
-
-		// returns something like "91" or "1,291" e.g.
-		pinsStr := regexPinsCount.FindString(pinsCount)
-		log.Trace().
-			Str("method", "fetchPinsCount").
-			Msgf("Pin count (regex): %s", pinsStr)
-
-		// remove "," if needed
-		pinsStr = strings.Replace(pinsStr, ",", "", -1)
-		log.Trace().
-			Str("method", "fetchPinsCount").
-			Msgf("Pin count (; removed): %s", pinsStr)
-
-		pins, err := strconv.Atoi(pinsStr)
-		if err != nil {
-			return 0
-		}
-
-		return pins
-	}
-
-	err = chromedp.Run(browserCtx, fetchRawPinsCountFromPage(&rawPinsCount))
-	if err != nil {
-		return 0, err
-	}
-
-	pinsCount := pinsCountStringToInt(rawPinsCount)
-
-	return pinsCount, nil
-}
-
 // scrape parses a board and extracts image URLs. Also scrolls down the
 // page until end.
-func (s *scraper) scrape(browserCtx context.Context, pinsCount int, board *board.Board) error {
+func (s *scraper) scrape(browserCtx context.Context, board *board.Board) error {
 	var (
-		err    error
-		config = s.config
-		pins   = newStringSet() // Set to store preview pins without duplicates
+		err                     error
+		config                  = s.config
+		pins                    = newStringSet() // Set to store preview pins without duplicates
+		latestPinInCurrentBatch string           // Stores the lastest pin in current scrape batch
+		latestPinInPrevBatch    string           // Stores the latest pin in previous scrape batch
 	)
 
 	log.Trace().
@@ -288,10 +234,6 @@ func (s *scraper) scrape(browserCtx context.Context, pinsCount int, board *board
 		}
 	}
 
-	log.Debug().
-		Str("method", "scrape").
-		Msgf("Page has %s pins.", string(pinsCount))
-
 	// Processes the srcset attribute of a pin. It contains four URLs and we want
 	// the "originals" one.
 	getOriginalImage := func(srcSetAttr string) string {
@@ -310,18 +252,9 @@ func (s *scraper) scrape(browserCtx context.Context, pinsCount int, board *board
 		// After "scrolling" store the pin links here
 		var res []string
 
-		// Before scrolling and scraping next page save current pin count
-		pinsSetSizeBeforeScraping := pins.Size()
-
 		log.Debug().
 			Str("method", "scrape").
-			Msgf("Scraped %d/%d picture links.", pins.Size(), pinsCount)
-
-		// If we have equal or more pins downloaded as posted on the page
-		// we stop scraping
-		if pins.Size() >= pinsCount {
-			break
-		}
+			Msgf("Scraped %d picture links so far.", pins.Size())
 
 		log.Trace().
 			Str("method", "scrape").
@@ -340,6 +273,8 @@ func (s *scraper) scrape(browserCtx context.Context, pinsCount int, board *board
 				continue
 			}
 			pins.Add(n)
+
+			latestPinInCurrentBatch = link
 
 			log.Trace().
 				Str("method", "scrape").
@@ -361,15 +296,19 @@ func (s *scraper) scrape(browserCtx context.Context, pinsCount int, board *board
 			if err != nil {
 				return err
 			}
-
 		}
 
-		// If we have equal or more pins fetched after scrolling further
-		// down the page we stop scraping
-		// TODO: Retry 2-3x
-		if pinsSetSizeBeforeScraping >= pins.Size() {
+		// Check if the latest pin from the previous batch matches the latest
+		// pin from the current batch. If that's the case we can assume that
+		// we reached the end of the board. Not the greatest solution on earth
+		// but it seems to work for now. The real pin count is stored in
+		// script tag with id "#initial-state".
+		if latestPinInCurrentBatch == latestPinInPrevBatch {
 			break
 		}
+
+		latestPinInPrevBatch = latestPinInCurrentBatch
+
 	}
 
 	return nil
@@ -457,14 +396,7 @@ func StartProcessQueue(config *Config) error {
 				s.login(tctx, &board)
 				s.openURL(tctx, &board)
 
-				pinsCount, err := s.fetchPinsCount(tctx)
-				if err != nil {
-					log.Error().
-						Str("method", "StartProcessQueue").
-						Msgf("Error during fetching pin count: %s", err.Error())
-				}
-
-				err = s.scrape(tctx, pinsCount, &board)
+				err = s.scrape(tctx, &board)
 				if err != nil {
 					log.Error().
 						Str("method", "StartProcessQueue").

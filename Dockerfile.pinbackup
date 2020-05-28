@@ -14,7 +14,6 @@ RUN apk update && \
 
 ADD . /app/
 WORKDIR /app
-COPY ./go.mod ./go.sum ./
 
 RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /pinbackup .
