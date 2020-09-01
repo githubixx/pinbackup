@@ -14,7 +14,6 @@ var (
 	loginPassword        string
 	storageType          string
 	fsDownloadPath       string
-	selectorPinsCount    string
 	selectorPreviewPins  string
 	boardsQueue          string
 	downloadQueue        string

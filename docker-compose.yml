@@ -13,7 +13,7 @@ services:
     ports:
       - "9222:9222"
     restart: always
-    image: headless-shell:81.0.4044.129
+    image: headless-shell:85.0.4181.8
 
   scraper:
     build:
@@ -22,7 +22,6 @@ services:
     restart: on-failure
     image: pinbackup:latest
     environment:
-      SELECTOR_PINS_COUNT: ".tBJ.dyH.iFc.MF7.pBj.DrD.IZT.swG"
       SELECTOR_PREVIEW_PINS: ".hCL.kVc.L4E.MIw"
       LOGIN_NAME: "your@email.address"
       LOGIN_PASSWORD: "secret"

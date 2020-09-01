@@ -17,7 +17,6 @@ func init() {
 	scraperCmd.PersistentFlags().IntVar(&redisPort, "redis-port", 6379, "Redis port")
 	scraperCmd.PersistentFlags().StringVar(&loginName, "login-name", "", "Pinterest login name")
 	scraperCmd.PersistentFlags().StringVar(&loginPassword, "login-password", "", "Pinterest login password")
-	scraperCmd.PersistentFlags().StringVar(&selectorPinsCount, "selector-pins-count", "", "CSS selector for pins count")
 	scraperCmd.PersistentFlags().StringVar(&selectorPreviewPins, "selector-preview-pins", "", "CSS selector for preview pins")
 	scraperCmd.PersistentFlags().StringVar(&boardsQueue, "boards-queue", "boards", "Redis queue for boards to download")
 	scraperCmd.PersistentFlags().StringVar(&downloadQueue, "download-queue", "download", "Redis queue for pictures to download")
@@ -34,7 +33,6 @@ func init() {
 	viper.BindPFlag("redis-port", scraperCmd.PersistentFlags().Lookup("redis-port"))
 	viper.BindPFlag("login-name", scraperCmd.PersistentFlags().Lookup("login-name"))
 	viper.BindPFlag("login-password", scraperCmd.PersistentFlags().Lookup("login-password"))
-	viper.BindPFlag("selector-pins-count", scraperCmd.PersistentFlags().Lookup("selector-pins-count"))
 	viper.BindPFlag("selector-preview-pins", scraperCmd.PersistentFlags().Lookup("selector-preview-pins"))
 	viper.BindPFlag("boards-queue", scraperCmd.PersistentFlags().Lookup("boards-queue"))
 	viper.BindPFlag("download-queue", scraperCmd.PersistentFlags().Lookup("download-queue"))
@@ -51,7 +49,6 @@ var scraperCmd = &cobra.Command{
 			RedisPort:            viper.GetInt("redis-port"),
 			LoginName:            viper.GetString("login-name"),
 			LoginPassword:        viper.GetString("login-password"),
-			SelectorPinsCount:    viper.GetString("selector-pins-count"),
 			SelectorPreviewPins:  viper.GetString("selector-preview-pins"),
 			BoardsQueue:          viper.GetString("boards-queue"),
 			DownloadQueue:        viper.GetString("download-queue"),
