@@ -70,7 +70,7 @@ To start a board download you need `curl` or `wget`. There is no UI (yet). So if
 ```
 curl --header "Content-Type: application/json" \
      --request POST \
-     --data '{"url": "https://www.pinterest.com/user/board/"}'
+     --data '{"url": "https://www.pinterest.com/user/board/"}' \
      http://localhost:8080/api/v1/board
 ```
 
