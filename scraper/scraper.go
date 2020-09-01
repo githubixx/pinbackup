@@ -24,8 +24,6 @@ import (
 )
 
 var (
-	// Regex to find picture count
-	regexPinsCount = regexp.MustCompile(`^([0-9,]+)`)
 	// Regex to find link to original image
 	regexOriginalImageLink = regexp.MustCompile(`(?m)https:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,3}/originals\b[-a-zA-Z0-9@:%_\+.~#?&//=]*`)
 	downloadQueue          string
@@ -37,7 +35,6 @@ type Config struct {
 	RedisPort            int
 	LoginName            string
 	LoginPassword        string
-	SelectorPinsCount    string
 	SelectorPreviewPins  string
 	BoardsQueue          string
 	DownloadQueue        string
@@ -244,7 +241,7 @@ func (s *scraper) scrape(browserCtx context.Context, board *board.Board) error {
 		Str("method", "scrape").
 		Msg("Waiting for the first preview pins to appear.")
 
-	if err := chromedp.Run(browserCtx, chromedp.WaitVisible(config.SelectorPinsCount)); err != nil {
+	if err := chromedp.Run(browserCtx, chromedp.WaitVisible(config.SelectorPreviewPins)); err != nil {
 		return err
 	}
 

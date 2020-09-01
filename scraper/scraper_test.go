@@ -14,25 +14,6 @@ type testSrcSet struct {
 	original string
 }
 
-//func TestPinsCountStringToInt(t *testing.T) {
-//
-//	var pinCountTests = []testPinCount{
-//		{"0", 0},
-//		{"15", 15},
-//		{"999", 999},
-//		{"1,291", 1291},
-//		{"8,432", 8432},
-//		{"15,987", 15987},
-//	}
-//
-//	for _, testPair := range pinCountTests {
-//		result := pinsCountStringToInt(testPair.input)
-//		if result != testPair.result {
-//			t.Error("Pin count string ", testPair.input, " should result in ", testPair.result)
-//		}
-//	}
-//}
-
 func TestGetOriginalImage(t *testing.T) {
 
 	var srcSetTests = []testSrcSet{
