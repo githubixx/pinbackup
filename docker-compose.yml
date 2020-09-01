@@ -13,7 +13,7 @@ services:
     ports:
       - "9222:9222"
     restart: always
-    image: headless-shell:81.0.4044.129
+    image: headless-shell:85.0.4181.8
 
   scraper:
     build:
