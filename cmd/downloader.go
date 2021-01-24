@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"pinbackup/downloader"
+	"github.com/githubixx/pinbackup/downloader"
 )
 
 func init() {

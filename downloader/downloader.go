@@ -16,8 +16,8 @@ import (
 	"github.com/gomodule/redigo/redis"
 	"github.com/rs/zerolog/log"
 
-	redisClient "pinbackup/redis"
-	"pinbackup/scraper"
+	redisClient "github.com/githubixx/pinbackup/redis"
+	"github.com/githubixx/pinbackup/scraper"
 )
 
 var (

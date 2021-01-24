@@ -15,6 +15,6 @@ var versionCmd = &cobra.Command{
 	Short: "Print the version number of pinbackup",
 	Long:  `Print the version number of pinbackup.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("pinbackup v0.1.0")
+		fmt.Println("pinbackup v0.4.0")
 	},
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"pinbackup/cmd"
+	"github.com/githubixx/pinbackup/cmd"
 
 	"github.com/rs/zerolog"
 )

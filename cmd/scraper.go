@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"pinbackup/scraper"
+	"github.com/githubixx/pinbackup/scraper"
 )
 
 func init() {

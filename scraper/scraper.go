@@ -19,8 +19,8 @@ import (
 	"strings"
 	"time"
 
-	"pinbackup/board"
-	redisClient "pinbackup/redis"
+	"github.com/githubixx/pinbackup/board"
+	redisClient "github.com/githubixx/pinbackup/redis"
 )
 
 var (

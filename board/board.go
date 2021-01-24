@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"pinbackup/redis"
-	redisClient "pinbackup/redis"
+	redisClient "github.com/githubixx/pinbackup/redis"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -243,7 +242,7 @@ func EnqueueBoard(w http.ResponseWriter, r *http.Request) {
 		Msgf("EnqueueBoard: %v", board)
 
 	response, _ := json.Marshal(board)
-	if err := redis.Publish(conn, "boards", []byte(response)); err != nil {
+	if err := redisClient.Publish(conn, "boards", []byte(response)); err != nil {
 		respondError(w, http.StatusBadRequest, err)
 		return
 	}
