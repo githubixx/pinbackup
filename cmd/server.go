@@ -10,8 +10,8 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"pinbackup/board"
-	redisPool "pinbackup/redis"
+	"github.com/githubixx/pinbackup/board"
+	redisPool "github.com/githubixx/pinbackup/redis"
 
 	"net/http"
 	"strings"
