@@ -19,8 +19,9 @@ var (
 	redisPool *redis.Pool
 )
 
-// Get returns a Redis connection from connection pool or error if no
-// connection is available.
+// GetConnection returns a Redis connection from connection pool or error if no
+// connection is available. Remember to use Close() after the connection is no
+// longer needed to avoid memory leaks and too many Redis connection in use.
 func GetConnection() (redis.Conn, error) {
 	log.Trace().
 		Str("method", "GetConnection").
@@ -99,6 +100,36 @@ func Publish(conn redis.Conn, channel string, message []byte) error {
 			v = v[0:12] + "..."
 		}
 		return fmt.Errorf("Error publish %s to %s: %v", v, channel, err)
+	}
+
+	return nil
+}
+
+// ExistsBoard checks if a board already exists in Redis database
+func ExistsBoard(conn redis.Conn, key string) (bool, error) {
+	exists, err := redis.Bool(conn.Do("EXISTS", key))
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
+
+// CountPictures returns the number of pictures a board has
+func CountPictures(conn redis.Conn, key string) (int, error) {
+	count, err := redis.Int(conn.Do("SCARD", key))
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+// AddPicture adds a picture to a key
+func AddPicture(conn redis.Conn, key string, picture string) error {
+	_, err := conn.Do("SADD", key, picture)
+	if err != nil {
+		return err
 	}
 
 	return nil
