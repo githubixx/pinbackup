@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
-	redisClient "github.com/githubixx/pinbackup/redis"
 	"strings"
+
+	redisClient "github.com/githubixx/pinbackup/redis"
 
 	"github.com/rs/zerolog/log"
 
@@ -63,7 +64,7 @@ func respondError(w http.ResponseWriter, status int, err error) {
 // trimPath trims "/" at the beginning and at the end of a string.
 func trimPath(path string) (string, error) {
 	if path == "" {
-		return "", errors.New("Path to trim can't be empty!")
+		return "", errors.New("path to trim can't be empty")
 	}
 
 	path = strings.TrimPrefix(path, "/")
@@ -159,7 +160,7 @@ func parsePathSegments(path string) ([]string, error) {
 
 // EnqueueBoard publishes a new board to Redis Pub/Sub. It's the entrypoint
 // for every scrape request.
-func EnqueueBoard(w http.ResponseWriter, r *http.Request) {
+func enqueueBoard(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	log.Trace().
