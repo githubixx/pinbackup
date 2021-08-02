@@ -77,8 +77,8 @@ func TestParsePath(t *testing.T) {
 
 func TestPathSegments(t *testing.T) {
 	var testPathSegments = []testSegments{
-		testSegments{"/board", []string{"board"}},
-		testSegments{"/board/section1", []string{"board", "section1"}},
+		{"/board", []string{"board"}},
+		{"/board/section1", []string{"board", "section1"}},
 	}
 
 	for _, tps := range testPathSegments {

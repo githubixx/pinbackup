@@ -18,6 +18,8 @@ var (
 	boardsQueue          string
 	downloadQueue        string
 	chromeWsDebuggerHost string
+	importDir            string
+	userDatabaseName     string
 )
 
 var rootCmd = &cobra.Command{
