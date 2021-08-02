@@ -1,4 +1,4 @@
-FROM chromedp/headless-shell:84.0.4147.135
+FROM chromedp/headless-shell:91.0.4472.164
 
 RUN \
   apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
