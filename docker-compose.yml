@@ -4,7 +4,7 @@ services:
 
   redis:
     restart: always
-    image: redis:5-alpine
+    image: redis:6-alpine
 
   headless-chrome:
     build:
