@@ -4,7 +4,7 @@ services:
 
   redis:
     restart: always
-    image: redis:5-alpine
+    image: redis:6-alpine
 
   headless-chrome:
     build:
@@ -13,7 +13,7 @@ services:
     ports:
       - "9222:9222"
     restart: always
-    image: headless-shell:84.0.4147.135
+    image: headless-shell:91.0.4472.164
 
   scraper:
     build:
